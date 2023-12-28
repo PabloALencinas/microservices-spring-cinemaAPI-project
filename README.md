@@ -4,7 +4,7 @@
 
 Adding new features and technologies in order to allow futures improvements. 
 
-### Technologies in 1st stage
+### 1st stage
 
     - API Gateway
     - Eureka Server
@@ -13,7 +13,7 @@ Adding new features and technologies in order to allow futures improvements.
     - Zipkin
     - Docker/Docker Compose
 
-### Technologies in 2nd stage
+### 2nd stage
 
     - Kubernetes w/ minikube to deployment
 
