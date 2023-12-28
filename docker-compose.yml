@@ -1,0 +1,176 @@
+services:
+  postgres-user:
+    container_name: postgres-user
+    image: postgres:14
+    environment:
+      POSTGRES_USER: pabloagustin
+      POSTGRES_PASSWORD: password
+      PGDATA: /data/postgres
+    volumes:
+      - postgres-user:/data/postgres
+    ports:
+      - "5432:5432"
+    networks:
+      - postgres
+    restart: unless-stopped
+
+  postgres-reservation:
+    container_name: postgres-reservation
+    image: postgres:14
+    environment:
+      POSTGRES_USER: pabloagustin
+      POSTGRES_PASSWORD: password
+      PGDATA: /data/postgres
+    volumes:
+      - postgres-reservation:/data/postgres
+    ports:
+      - "5433:5433"
+    networks:
+      - postgres
+    restart: unless-stopped
+
+  postgres-notif:
+    container_name: postgres-notif
+    image: postgres:14
+    environment:
+      POSTGRES_USER: pabloagustin
+      POSTGRES_PASSWORD: password
+      PGDATA: /data/postgres
+    volumes:
+      - postgres-notif:/data/postgres
+    ports:
+      - "5434:5434"
+    networks:
+      - postgres
+    restart: unless-stopped
+
+  mysql-movie:
+    container_name: mysql-movie
+    image: mysql:latest
+    environment:
+      MYSQL_DATABASE: movie
+      MYSQL_USER: pabloagustin
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - mysql-movie:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    networks:
+      - mysql
+    restart: unless-stopped
+
+  zipkin:
+    image: openzipkin/zipkin
+    container_name: zipkin
+    ports:
+      - "9411:9411"
+    networks:
+      - spring
+
+  rabbitmq:
+    image: rabbitmq:3.9.11-management-alpine
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - spring
+
+#  eureka-server:
+#    image: pabloalencinas/eureka-server:latest
+#    container_name: eureka-server
+#    ports:
+#      - "8761:8761"
+#    environment:
+#      - SPRING_PROFILES_ACTIVE=docker
+#    networks:
+#      - spring
+#    depends_on:
+#      - zipkin
+
+#  apigw:
+#    image: pabloalencinas/apigw:latest
+#    container_name: apigw
+#    ports:
+#      - "8084:8084"
+#    environment:
+#      - SPRING_PROFILES_ACTIVE=docker
+#    networks:
+#      - spring
+#    depends_on:
+#      - zipkin
+#      - eureka-server
+
+  movie:
+    image: pabloalencinas/movie:latest
+    container_name: movie
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    networks:
+      - spring
+      - mysql
+    depends_on:
+      - zipkin
+      - mysql-movie
+
+  user:
+    image: pabloalencinas/user:latest
+    container_name: user
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    networks:
+      - spring
+      - postgres
+    depends_on:
+      - zipkin
+      - postgres-user
+      - rabbitmq
+
+  reservation:
+    image: pabloalencinas/reservation:latest
+    container_name: reservation
+    ports:
+      - "8082:8082"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    networks:
+      - spring
+      - postgres
+    depends_on:
+      - zipkin
+      - postgres-reservation
+      - rabbitmq
+
+  notification:
+    image: pabloalencinas/notification:latest
+    container_name: notification
+    ports:
+      - "8083:8083"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    networks:
+      - spring
+      - postgres
+    depends_on:
+      - zipkin
+      - postgres-notif
+      - rabbitmq
+
+networks:
+  postgres:
+    driver: bridge
+  mysql:
+    driver: bridge
+  spring:
+    driver: bridge
+
+volumes:
+  postgres-user:
+  mysql-movie:
+  postgres-reservation:
+  postgres-notif:

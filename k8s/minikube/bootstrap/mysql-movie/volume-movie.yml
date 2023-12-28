@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mysql-movie-pv
+  labels:
+    type: local
+    app: mysql
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteMany
+  hostPath:
+    path: /mnt/data/mysql-movie  # Adjust the path as needed
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-movie-pvc
+  labels:
+    app: mysql
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 5Gi

@@ -1,0 +1,29 @@
+server:
+  port: 8084
+
+spring:
+  application:
+    name: api-gateway
+  zipkin:
+    base-url: http://zipkin:9411
+  cloud:
+    gateway:
+      routes:
+        - id: user
+          uri: lb://USER
+          predicates:
+            - Path=/api/v1/users/**
+        - id: reservation
+          uri: lb://RESERVATION
+          predicates:
+            - Path=/api/v1/reservations/**
+        - id: movie
+          uri: lb://MOVIE
+          predicates:
+            - Path=/api/v1/movies/**
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka-server:8761/eureka
+    fetch-registry: true
+    register-with-eureka: true
